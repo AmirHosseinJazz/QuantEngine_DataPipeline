@@ -1,0 +1,184 @@
+services:
+  ##################### POSTGRES PGADMIN############################
+  cryptic_postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      FOREX_ASSETS: ${FOREX_ASSETS}
+      CRYPTO_ASSETS: ${CRYPTO_ASSETS}
+      DATABASE: ${DATABASE}
+    networks:
+      - cryptic_network
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./db/init_scripts:/docker-entrypoint-initdb.d
+      - ./postgres_data:/var/lib/postgresql/data
+  cryptic_pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    command: ["./wait-for-it.sh", "cryptic_postgres:5432", "--", "pgadmin4"]
+    volumes:
+      - ./db/pgadmin_init/servers.json:/pgadmin4/servers.json
+      - ./db/pgadmin_init/.pgpass:/.pgpass
+      - ./db/pgadmin_init/wait-for-it.sh:/wait-for-it.sh
+    user: "root"
+    depends_on:
+      - cryptic_postgres
+    networks:
+      - cryptic_network
+    ports:
+      - "8888:80"
+    restart: unless-stopped
+    logging:
+      driver: none
+  #################### END POSTGRES PGADMIN############################
+
+  #################### PREFECT SERVER ################################
+  cryptic_prefect_server:
+    build:
+      context: ./scheduler
+      dockerfile: Dockerfile
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@cryptic_postgres:5432/prefect"
+      PREFECT_SERVER_API_HOST: "0.0.0.0"
+      PREFECT_API_URL: "http://0.0.0.0:4200/api"
+      POSTGRES_HOST: "cryptic_postgres"
+      POSTGRES_PORT: "5432"
+    volumes:
+      - ./scheduler:/app
+    ports:
+      - "4200:4200"
+    depends_on:
+      - cryptic_postgres
+    networks:
+      - cryptic_network
+
+  #################### END PREFECT SERVER ################################
+  # fastapi-app:
+  #   build:
+  #     context: ./endpoint
+  #     dockerfile: Dockerfile
+  #   networks:
+  #     - cryptic_network
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./endpoint:/code
+  #   # environment:
+  #   # - MODULE_NAME=app.main
+  #   command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  ######################### KAFKA ################################
+  # cryptic_zookeeper:
+  #   image: confluentinc/cp-zookeeper:latest
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #   ports:
+  #     - "2181:2181"
+  #   networks:
+  #     - cryptic_network
+  # cryptic_kafka:
+  #   image: confluentinc/cp-kafka:latest
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: cryptic_zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://cryptic_kafka:9092,LISTENER_DOCKER_EXTERNAL://localhost:29092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+  #     KAFKA_LISTENERS: LISTENER_DOCKER_INTERNAL://0.0.0.0:9092,LISTENER_DOCKER_EXTERNAL://0.0.0.0:29092
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+  #     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  #   ports:
+  #     - "9092:9092"
+  #     - "29092:29092"
+  #   networks:
+  #     - cryptic_network
+  #   depends_on:
+  #     - cryptic_zookeeper
+  # cryptic_kafka_connect:
+  #   image: confluentinc/cp-kafka-connect:latest
+  #   environment:
+  #     CONNECT_BOOTSTRAP_SERVERS: cryptic_kafka:9092
+  #     CONNECT_REST_ADVERTISED_HOST_NAME: cryptic_kafka_connect
+  #     CONNECT_REST_PORT: 8083
+  #     CONNECT_GROUP_ID: connect-cluster
+  #     CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+  #     CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+  #     CONNECT_STATUS_STORAGE_TOPIC: connect-status
+  #     CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+  #     CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+  #     CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  #     CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  #     CONNECT_REST_ADVERTISED_LISTENER: "http://cryptic_kafka_connect:8083"
+  #     CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
+  #   ports:
+  #     - "8083:8083"
+  #   networks:
+  #     - cryptic_network
+  #   depends_on:
+  #     - cryptic_kafka
+  #     - cryptic_zookeeper
+  ######################### END KAFKA ################################
+  ########################## REDIS ################################
+  # cryptic_redis:
+  #   image: redis:6
+  #   volumes:
+  #     - ./redis_data:/data
+  #   networks:
+  #     - cryptic_network
+  #   ports:
+  #     - "6379:6379"
+  # cryptic_redisinsight:
+  #   image: redislabs/redisinsight:latest
+  #   restart: unless-stopped
+  #   environment:
+  #     REDIS_1_HOST: cryptic_redis
+  #   networks:
+  #     - cryptic_network
+  #   ports:
+  #     - "8001:5540"
+  #   depends_on:
+  #     - cryptic_redis
+  ######################## END REDIS ################################
+
+  forex_historic:
+    build:
+      context: ./forex_historic
+      dockerfile: Dockerfile
+    environment:
+      PREFECT_API_URL: "http://cryptic_prefect_server:4200/api"
+      PREFECT_HOST: "cryptic_prefect_server"
+      PREFECT_PORT: "4200"
+    networks:
+      - cryptic_network
+    depends_on:
+      - cryptic_postgres
+      - cryptic_prefect_server
+    volumes:
+      - ./forex_historic:/app
+  crypto_historic:
+    build:
+      context: ./crypto_historic
+      dockerfile: Dockerfile
+    environment:
+      PREFECT_API_URL: "http://cryptic_prefect_server:4200/api"
+      PREFECT_HOST: "cryptic_prefect_server"
+      PREFECT_PORT: "4200"
+    networks:
+      - cryptic_network
+    depends_on:
+      - cryptic_postgres
+      - cryptic_prefect_server
+    volumes:
+      - ./crypto_historic:/app
+networks:
+  cryptic_network:
+    driver: bridge
