@@ -21,4 +21,17 @@ if __name__ == "__main__":
     # print(main.money_index())
     # print(main.crypto_events())
     # print(misc.get_news())
+    # main.crypto_historic(symbol="BTCUSDT", interval="1h")
+    # main.crypto_update_latest(symbol="BTCUSDT", interval="1h")
+    # main.historical_technical(symbol="BTCUSDT", interval="1m")
+    crypto_histdata.insert_klines(
+        startyear="2020",
+        startmonth="01",
+        startday="01",
+        symbol="BTCUSDT",
+        endyear="",
+        endmonth="",
+        endday="",
+        interval="1m",
+    )
     pass

@@ -618,7 +618,7 @@ if __name__ == "__main__":
         name="btc_hourly_update", cron="1 */5 * * *"
     )
     update_btc_minutely = btc_minutely_update.to_deployment(
-        name="btc_minute_update", cron="*/5 * * * *"
+        name="btc_minute_update", cron="*/1 * * * *"
     )
 
     # historic_eth_daily=eth_daily.to_deployment(name='eth_historic_daily',cron='10 1 1 * *')

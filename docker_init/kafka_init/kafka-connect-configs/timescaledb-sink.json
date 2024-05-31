@@ -1,0 +1,14 @@
+{
+  "name": "timescaledb-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "connection.url": "jdbc:postgresql://timescaledb:5432/cryptic_live",
+    "topics": "btcaggtrade,btctrade,btcklineonemin",
+    "connection.user": "jean",
+    "connection.password": "mikasa10",
+    "auto.create": true,
+    "insert.mode": "insert",
+    "pk.mode": "none",
+    "pk.fields": ""
+  }
+}

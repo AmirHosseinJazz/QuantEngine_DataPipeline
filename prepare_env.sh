@@ -1,42 +1,67 @@
 #!/bin/bash
 
-folder_names=("postgres_data" "redis_data")
+# ANSI Color Codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
 
-# Loop through each folder name
+# ANSI Escape Codes for bold and reset
+BOLD='\033[1m'
+RESET='\033[0m'
+
+if [ ! -d "docker_volume" ]; then
+  mkdir "docker_volume"
+  echo -e "   ${GREEN}Folder created:${BOLD}docker_volume${NC}"
+  chmod 755 "docker_volume"
+  echo -e "   ${GREEN}Permissions set to 755 for folder:${BOLD}docker_volume${NC}"
+else
+  echo -e "   ${GREEN}Folder already exists:${BOLD}docker_volume${NC}"
+fi
+
+
+if [ ! -d "docker_init" ]; then
+  mkdir "docker_init"
+  echo -e "   ${GREEN}Folder created:${BOLD}docker_init${NC}"
+  chmod 755 "docker_init"
+  echo -e "   ${GREEN}Permissions set to 755 for folder:${BOLD}docker_init${NC}"
+else
+  echo -e "   ${GREEN}Folder already exists:${BOLD}docker_init${NC}"
+fi
+
+
+
+# Define the directories where Volume folders are located
+
+folder_names=("postgres_data" "redis_data" "timescaledb_data")
+
 for folder_name in "${folder_names[@]}"; do
     # Check if the folder does not exist
-    if [ ! -d "$folder_name" ]; then
+    if [ ! -d "docker_volume/$folder_name" ]; then
         # Create the folder
-        mkdir "$folder_name"
-        echo "Folder created: $folder_name"
+        mkdir "docker_volume/$folder_name"
+        echo -e "${GREEN}   Folder created: docker_volume/$folder_name${NC}"
     else
-        #### Development
-        # sudo rm -r "$folder_name"
-        # echo "Folder removed: $folder_name"
-        # mkdir "$folder_name"
-        # echo "Folder re-created: $folder_name"
-        #### Production
-        echo "Folder already exists: $folder_name"
+        echo -e "${GREEN}   Folder already exists: docker_volume/$folder_name${NC}"
 
     fi
 
-    chmod 755 "$folder_name"
-    echo "Permissions set to 755 for folder: $folder_name"
+    chmod 755 "docker_volume/$folder_name"
+    echo -e "${GREEN}  Permissions set to 755 for folder:$folder_name${NC}"
 done
 
 
 # Define the directories where Dockerfiles are located
-directories=("scheduler" "forex_historic" "crypto_historic")
-
-# Loop through each directory and copy the .env file there
+directories=("perfect_server" "forex_historic" "crypto_historic" "crypto_live")
 for dir in "${directories[@]}"; do
-  # Check if .env exists in the destination, if so, remove it first to avoid copying into a directory
   if [ -d "./$dir/.env" ]; then
     rm -r "./$dir/.env"
   fi
-
-  # Copy .env to the directory containing the Dockerfile
   cp .env ./$dir/
+  
+  if [ -f "./$dir/entrypoint.sh" ]; then
+    chmod +x ./$dir/entrypoint.sh
+  fi
 done
 
-# echo "Copied .env to all specified directories."
+done
+
