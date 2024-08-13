@@ -4,3 +4,4 @@
 *.env
 **/.env
 ./docker_volume/*
+docker_volume/redis_data/dump.rdb

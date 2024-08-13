@@ -69,8 +69,7 @@ RUN wget -q -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.google
 
 COPY ./requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
-    
-    
+
 COPY . /app
 
 RUN chmod +x /app/entrypoint.sh

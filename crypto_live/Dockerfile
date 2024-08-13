@@ -7,7 +7,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y curl
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir confluent-kafka confluent-kafka[avro]
+RUN pip install --no-cache-dir confluent-kafka confluent-kafka[avro] fastavro
+
 
 COPY ./requirements.txt /app/
 

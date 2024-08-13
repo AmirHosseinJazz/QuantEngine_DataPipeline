@@ -22,8 +22,13 @@ fi
 if [ ! -d "docker_init" ]; then
   mkdir "docker_init"
   echo -e "   ${GREEN}Folder created:${BOLD}docker_init${NC}"
-  chmod 755 "docker_init"
+  sudo chmod 755 "docker_init"
   echo -e "   ${GREEN}Permissions set to 755 for folder:${BOLD}docker_init${NC}"
+  ## if .sh file in the folder chmod +x
+  if [ -f "docker_init/init.sh" ]; then
+    sudo chmod +x "docker_init/init.sh"
+    echo -e "   ${GREEN}Permissions set to 755 for file:${BOLD}docker_init/init.sh${NC}"
+  fi
 else
   echo -e "   ${GREEN}Folder already exists:${BOLD}docker_init${NC}"
 fi
@@ -45,7 +50,7 @@ for folder_name in "${folder_names[@]}"; do
 
     fi
 
-    chmod 755 "docker_volume/$folder_name"
+    sudo chmod 755 "docker_volume/$folder_name"
     echo -e "${GREEN}  Permissions set to 755 for folder:$folder_name${NC}"
 done
 
@@ -63,5 +68,4 @@ for dir in "${directories[@]}"; do
   fi
 done
 
-done
 
