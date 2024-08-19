@@ -60,6 +60,29 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQ
     OWNER TO $POSTGRES_USER; 
 EOSQL
 
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+    CREATE TABLE IF NOT EXISTS "$asset"."kline_15M"
+    (
+        "Opentime" bigint NOT NULL,
+        "CloseTime" bigint NOT NULL,
+        "Open" double precision,
+        "High" double precision,
+        "Low" double precision,
+        "Close" double precision,
+        "Volume" double precision,
+        "QuoteAssetVolume" double precision,
+        "NumberOfTrades" double precision,
+        "TakerBuyBaseAssetVolume" double precision,
+        "TakerBuyQuoteAssetVolume" double precision,
+        "Un" character varying COLLATE pg_catalog."default",
+        CONSTRAINT klines_15m_pkey PRIMARY KEY ("Opentime", "CloseTime")
+    )
+
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS "$asset"."kline_15M"
+    OWNER TO $POSTGRES_USER; 
+EOSQL
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
     CREATE TABLE IF NOT EXISTS "$asset"."kline_1H"
@@ -82,6 +105,30 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQ
     TABLESPACE pg_default;
 
     ALTER TABLE IF EXISTS "$asset"."kline_1H"
+    OWNER TO $POSTGRES_USER; 
+EOSQL
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+    CREATE TABLE IF NOT EXISTS "$asset"."kline_4H"
+    (
+        "Opentime" bigint NOT NULL,
+        "CloseTime" bigint NOT NULL,
+        "Open" double precision,
+        "High" double precision,
+        "Low" double precision,
+        "Close" double precision,
+        "Volume" double precision,
+        "QuoteAssetVolume" double precision,
+        "NumberOfTrades" double precision,
+        "TakerBuyBaseAssetVolume" double precision,
+        "TakerBuyQuoteAssetVolume" double precision,
+        "Un" character varying COLLATE pg_catalog."default",
+        CONSTRAINT klines_4h_pkey PRIMARY KEY ("Opentime", "CloseTime")
+    )
+
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS "$asset"."kline_4H"
     OWNER TO $POSTGRES_USER; 
 EOSQL
 
@@ -127,6 +174,22 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQ
 EOSQL
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+    CREATE TABLE IF NOT EXISTS "$asset"."technical_15M"
+    (
+        "CloseTime" bigint NOT NULL,
+        "Item" character varying COLLATE pg_catalog."default" NOT NULL,
+        "Value" double precision NOT NULL,
+        CONSTRAINT technical_15m_pkey PRIMARY KEY ("CloseTime", "Item")
+    )
+
+    TABLESPACE pg_default;
+
+
+    ALTER TABLE IF EXISTS "$asset"."technical_15M"
+    OWNER TO $POSTGRES_USER;
+EOSQL
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
     CREATE TABLE IF NOT EXISTS "$asset"."technical_1H"
     (
         "CloseTime" bigint NOT NULL,
@@ -137,6 +200,20 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQ
 
     TABLESPACE pg_default;
     ALTER TABLE IF EXISTS "$asset"."technical_1H"
+    OWNER TO $POSTGRES_USER;
+EOSQL
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+    CREATE TABLE IF NOT EXISTS "$asset"."technical_4H"
+    (
+        "CloseTime" bigint NOT NULL,
+        "Item" character varying COLLATE pg_catalog."default" NOT NULL,
+        "Value" double precision NOT NULL,
+        CONSTRAINT technical_4h_pkey PRIMARY KEY ("CloseTime", "Item")
+    )
+
+    TABLESPACE pg_default;
+    ALTER TABLE IF EXISTS "$asset"."technical_4H"
     OWNER TO $POSTGRES_USER;
 EOSQL
 

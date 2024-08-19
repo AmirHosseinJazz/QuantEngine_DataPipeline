@@ -15,31 +15,45 @@ import pandas as pd
 from tqdm import tqdm
 
 ## -- Prefect Flows -- ##
-
-
+## Historic BTC
 @flow(log_prints=True)
 def btc_daily():
     crypto_historic(symbol="BTCUSDT", interval="1d")
 
+@flow(log_prints=True)
+def btc_4_hourly():
+    crypto_historic(symbol="BTCUSDT", interval="4h")
 
 @flow(log_prints=True)
 def btc_hourly():
     crypto_historic(symbol="BTCUSDT", interval="1h")
+
+@flow(log_prints=True)
+def btc_15_minutely():
+    crypto_historic(symbol="BTCUSDT", interval="15m")
 
 
 @flow(log_prints=True)
 def btc_minutely():
     crypto_historic(symbol="BTCUSDT", interval="1m")
 
-
+#### Live Update BTC
 @flow(log_prints=True)
 def btc_daily_update():
     crypto_update_latest(symbol="BTCUSDT", interval="1d")
+
+@flow(log_prints=True)
+def btc_4_hourly_update():
+    crypto_update_latest(symbol="BTCUSDT", interval="4h")
 
 
 @flow(log_prints=True)
 def btc_hourly_update():
     crypto_update_latest(symbol="BTCUSDT", interval="1h")
+
+@flow(log_prints=True)
+def btc_15_minutely_update():
+    crypto_update_latest(symbol="BTCUSDT", interval="15m")
 
 
 @flow(log_prints=True)
@@ -82,26 +96,40 @@ def eth_minutely_update():
 def btc_tech_daily():
     historical_technical(symbol="BTCUSDT", interval="1d")
 
+@flow(log_prints=True)
+def btc_tech_4hourly():
+    historical_technical(symbol="BTCUSDT", interval="4h")
 
 @flow(log_prints=True)
 def btc_tech_hourly():
     historical_technical(symbol="BTCUSDT", interval="1h")
 
+@flow(log_prints=True)
+def btc_tech_15_minutely():
+    historical_technical(symbol="BTCUSDT", interval="15m")
 
 @flow(log_prints=True)
 def btc_tech_minutely():
     historical_technical(symbol="BTCUSDT", interval="1m")
 
+## UPdates
 
 @flow(log_prints=True)
 def btc_tech_daily_update():
     update_technical(symbol="BTCUSDT", interval="1d")
+
+@flow(log_prints=True)
+def btc_tech_4hourly_update():
+    update_technical(symbol="BTCUSDT", interval="4h")
 
 
 @flow(log_prints=True)
 def btc_tech_hourly_update():
     update_technical(symbol="BTCUSDT", interval="1h")
 
+@flow(log_prints=True)
+def btc_tech_15_minutely_update():
+    update_technical(symbol="BTCUSDT", interval="15m")
 
 @flow(log_prints=True)
 def btc_tech_minutely_update():
@@ -164,8 +192,12 @@ def crypto_historic(symbol="BTCUSDT", interval="1m"):
     load_dotenv()
     if interval == "1m":
         db_table = f'"{symbol}"."kline_1M"'
+    elif interval=='15m':
+        db_table = f'"{symbol}"."kline_15M"'
     elif interval == "1h":
         db_table = f'"{symbol}"."kline_1H"'
+    elif interval == "4h":
+        db_table = f'"{symbol}"."kline_4H"'
     elif interval == "1d":
         db_table = f'"{symbol}"."kline_1D"'
     db_name = os.getenv("DATABASE")
@@ -265,8 +297,12 @@ def crypto_update_latest(symbol="BTCUSDT", interval="1m"):
     load_dotenv()
     if interval == "1m":
         db_table = f'"{symbol}"."kline_1M"'
+    elif interval == "15m":
+        db_table = f'"{symbol}"."kline_15M"'
     elif interval == "1h":
         db_table = f'"{symbol}"."kline_1H"'
+    elif interval == "4h":
+        db_table = f'"{symbol}"."kline_4H"'
     elif interval == "1d":
         db_table = f'"{symbol}"."kline_1D"'
     db_name = os.getenv("DATABASE")
@@ -315,9 +351,17 @@ def historical_technical(symbol="BTCUSDT", interval="1d"):
     if interval == "1m":
         db_table = f'"{symbol}"."kline_1M"'
         db_table_tech = f'"{symbol}"."technical_1M"'
+    elif interval == "15m":
+        db_table = f'"{symbol}"."kline_15M"'
+        db_table_tech = f'"{symbol}"."technical_15M"'
+
     elif interval == "1h":
         db_table = f'"{symbol}"."kline_1H"'
         db_table_tech = f'"{symbol}"."technical_1H"'
+    elif interval == "4h":
+        db_table = f'"{symbol}"."kline_4H"'
+        db_table_tech = f'"{symbol}"."technical_4H"'
+
     elif interval == "1d":
         db_table = f'"{symbol}"."kline_1D"'
         db_table_tech = f'"{symbol}"."technical_1D"'
@@ -375,9 +419,17 @@ def update_technical(symbol="BTCUSDT", interval="1d"):
     if interval == "1m":
         db_table = f'"{symbol}"."kline_1M"'
         db_table_tech = f'"{symbol}"."technical_1M"'
+    elif interval == "15m":
+        db_table = f'"{symbol}"."kline_15M"'
+        db_table_tech = f'"{symbol}"."technical_15M"'
+
     elif interval == "1h":
         db_table = f'"{symbol}"."kline_1H"'
         db_table_tech = f'"{symbol}"."technical_1H"'
+    elif interval == "4h":
+        db_table = f'"{symbol}"."kline_4H"'
+        db_table_tech = f'"{symbol}"."technical_4H"'
+
     elif interval == "1d":
         db_table = f'"{symbol}"."kline_1D"'
         db_table_tech = f'"{symbol}"."technical_1D"'
@@ -602,23 +654,39 @@ def crypto_events_historic():
 if __name__ == "__main__":
 
     historic_btc_daily = btc_daily.to_deployment(
-        name="btc_historic_daily", cron="10 0 1 * *"
+        name="HISTORIC_btc_1d", cron="10 0 1 * *"
+    )
+    historic_btc_4_hourly = btc_4_hourly.to_deployment(
+        name="HISTORIC_btc_4h", cron="25 0 1 * *"
     )
     historic_btc_hourly = btc_hourly.to_deployment(
-        name="btc_historic_hourly", cron="15 0 1 * *"
+        name="HISTORIC_btc_1h", cron="15 0 1 * *"
+    )
+    historic_btc_15_minutely = btc_15_minutely.to_deployment(
+        name="HISTORIC_btc_15m", cron="30 0 1 * *"
     )
     historic_btc_minutely = btc_minutely.to_deployment(
-        name="btc_historic_minute", cron="20 0 1 * *"
+        name="HISTORIC_btc_1m", cron="20 0 1 * *"
     )
 
+
+
     update_btc_daily = btc_daily_update.to_deployment(
-        name="btc_daily_update", cron="1 10 * * *"
+        name="LIVE_btc_1d", cron="1 10 * * *"
     )
+    update_btc_4_hourly = btc_4_hourly_update.to_deployment(
+        name="LIVE_btc_4h", cron="1 */5 * * *"
+    )
+
     update_btc_hourly = btc_hourly_update.to_deployment(
-        name="btc_hourly_update", cron="1 */5 * * *"
+        name="LIVE_btc_1h", cron="1 */5 * * *"
     )
+    update_btc_15_minutely = btc_15_minutely_update.to_deployment(
+        name="LIVE_btc_15m", cron="1 */5 * * *"
+    )
+
     update_btc_minutely = btc_minutely_update.to_deployment(
-        name="btc_minute_update", cron="*/50 * * * *"
+        name="LIVE_btc_1m", cron="*/50 * * * *"
     )
 
     # historic_eth_daily=eth_daily.to_deployment(name='eth_historic_daily',cron='10 1 1 * *')
@@ -630,23 +698,36 @@ if __name__ == "__main__":
     # update_eth_minutely=eth_minutely_update.to_deployment(name='eth_minute_update',cron='*/5 * * * *')
 
     btc_tech_daily = btc_tech_daily.to_deployment(
-        name="btc_tech_daily", cron="10 3 1 * *"
+        name="TECHNICAL_HISTORIC_btc_1d", cron="10 3 1 * *"
     )
+    btc_tech_4hourly = btc_tech_4hourly.to_deployment(
+        name="TECHNICAL_HISTORIC_btc_4h", cron="15 3 1 * *"
+    )
+
     btc_tech_hourly = btc_tech_hourly.to_deployment(
-        name="btc_tech_hourly", cron="15 3 1 * *"
+        name="TECHNICAL_HISTORIC_btc_1h", cron="15 3 1 * *"
+    )
+    btc_tech_15_minutely = btc_tech_15_minutely.to_deployment(
+        name="TECHNICAL_HISTORIC_btc_15m", cron="20 3 1 * *"
     )
     btc_tech_minutely = btc_tech_minutely.to_deployment(
-        name="btc_tech_minute", cron="20 3 1 * *"
+        name="TECHNICAL_HISTORIC_btc_1m", cron="20 3 1 * *"
     )
 
     btc_tech_daily_update = btc_tech_daily_update.to_deployment(
-        name="btc_tech_daily_update", cron="1 10 * * *"
+        name="TECHNICAL_LIVE_btc_1d", cron="1 10 * * *"
+    )
+    btc_tech_4hourly_update = btc_tech_4hourly_update.to_deployment(
+        name="TECHNICAL_LIVE_btc_4h", cron="1 */5 * * *"
     )
     btc_tech_hourly_update = btc_tech_hourly_update.to_deployment(
-        name="btc_tech_hourly_update", cron="1 */5 * * *"
+        name="TECHNICAL_LIVE_btc_1h", cron="1 */5 * * *"
+    )
+    btc_tech_15_minutely_update = btc_tech_15_minutely_update.to_deployment(
+        name="TECHNICAL_LIVE_btc_15m", cron="1 */5 * * *"
     )
     btc_tech_minutely_update = btc_tech_minutely_update.to_deployment(
-        name="btc_tech_minute_update", cron="*/5 * * * *"
+        name="TECHNICAL_LIVE_btc_1m", cron="*/5 * * * *"
     )
 
     # eth_tech_daily=eth_tech_daily.to_deployment(name='eth_tech_daily',cron='10 4 1 * *')
@@ -672,10 +753,14 @@ if __name__ == "__main__":
 
     serve(
         historic_btc_daily,
+        historic_btc_4_hourly,
         historic_btc_hourly,
+        historic_btc_15_minutely,
         historic_btc_minutely,
         update_btc_daily,
+        update_btc_4_hourly,
         update_btc_hourly,
+        update_btc_15_minutely,
         update_btc_minutely,
         # historic_eth_daily,
         # historic_eth_hourly,
@@ -684,10 +769,14 @@ if __name__ == "__main__":
         # update_eth_hourly,
         # update_eth_minutely,
         btc_tech_daily,
+        btc_tech_4hourly,
         btc_tech_hourly,
+        btc_tech_15_minutely,
         btc_tech_minutely,
         btc_tech_daily_update,
+        btc_tech_4hourly_update,
         btc_tech_hourly_update,
+        btc_tech_15_minutely_update,
         btc_tech_minutely_update,
         # eth_tech_daily,
         # eth_tech_hourly,
@@ -697,6 +786,6 @@ if __name__ == "__main__":
         # eth_tech_minutely_update,
         fear_greed_daily,
         # onchain_daily,// not available anymore
-        crypto_event_update_flow,
+        # crypto_event_update_flow,
         # crypto_event_historical_flow,
     )

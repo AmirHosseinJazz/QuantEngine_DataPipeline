@@ -8,7 +8,7 @@ import binance
 from datetime import datetime
 ####### Kline data ########
 def insert_klines(
-    startyear="2020",
+    startyear="2010",
     startmonth="01",
     startday="01",
     symbol="BTCUSDT",

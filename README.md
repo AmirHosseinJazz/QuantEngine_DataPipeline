@@ -1,71 +1,66 @@
-# Project Title
+# QuantEngine_DataPipeline
 
-Cryptic:
-Data inflow, schedulers and kafka services
+QuantEngine_DataPipeline is the data engineering component of the QuantEngine project, focused on the automated ingestion, cleaning, and storage of financial data, particularly Bitcoin (BTC). This repository manages the entire data pipeline, ensuring that high-quality, up-to-date data is available for financial modeling and analysis.
 
-### Details
+## Features
 
-Postgres:
-Environment Variables in .env root
-Init scripts in:
-./docker_init/postgres_init/
--- initial db, schema and tables creation
+- **Data Ingestion:** Automatically retrieves BTC data on multiple timeframes (1m, 5m, 1h, 1d) and additional indicators (e.g., Fear and Greed Index).
+- **Data Cleaning:** Processes raw data to remove inconsistencies and fill gaps, ensuring the integrity of the data used in analysis.
+- **Data Storage:** Utilizes TimescaleDB for efficient time series data storage and querying.
+- **Scheduling:** Uses Perfect-server to schedule data retrieval at specific intervals, ensuring that the data pipeline remains current.
+- **Docker Compose:** Manages services such as PostgreSQL, pgAdmin, Redis, TimescaleDB, Kafka (experimental), and Perfect-server using a custom Docker Compose setup.
 
----
+## Project Structure
 
-PgAdmin:
-Environment Variables in .env root
-Init scripts in:
-./docker_init/pgadmin_init/
--- .pgpass connection string to pghost
--- servers.json => details for pgadmin
--- wait-for-it.sh => waiting for postgres to setup
+QuantEngine_DataPipeline/
+│
+├── docker-compose.yml # Docker Compose file for managing services
+└── README.md # Project documentation
 
----
+## Getting Started
 
-Perfect Server:
-Environment variables in .env of root
-\*Needs a copy of env inside the folder for db connection(setup in prepare_env.sh)
--- perfect_server/Dockerfile => Setting up pip install perfect => wait for postgres => run perfect server
+### Services
 
----
+- Docker and Docker Compose
+- PostgreSQL and TimescaleDB
+- Perfect-Server
+- TimeScaleDB
+- Redis, RedisInsight
+- Kafka, KafkaConnect,Zookeeper
 
----
+<!-- ### Installation
 
-Crypto_historic:
-Environment variables => \*Needs a copy of env inside the folder for db connection(setup in prepare_env.sh)
---> update asset minute, hourly and daily -> see main func in crypto_historic.py
---> technical indicators in technical.py
---> other sources of data in misc.py (e.g fear greed)
+1. Clone the repository:
 
-## \*\*\* Long term kafka will replace lower timeframe
+   ```bash
+   git clone https://github.com/yourusername/QuantEngine_DataPipeline.git
+   cd QuantEngine_DataPipeline
+   ```
 
-Forex_historic:
-Same idea but not functional now.
+2. Set up environment variables:
 
----
+   ```bash
+   cp .env.example .env
+   ```
 
-Crypto_live:
-ws streams of binance to kafka
-.env copied from root folder
-\*\* To get the historical data , aggregation functions on ws streams in kafka should be implented
-=> Dockerfile to install kafka client and run entrypoint.sh => waiting for kafka connect service and run the main.py
+3. Start the data pipeline services:
 
-### Deleting between project
+   ```bash
+   docker-compose up -d
+   ``` -->
 
-docker rm -v -f $(docker ps -qa)
+Access services:
+   - **pgAdmin:** `http://localhost:8888`
+   - **Perfect-server:** `http://localhost:4200`
 
-docker compose exec -it cryptic_kafka kafka-console-producer --broker-list cryptic_kafka:9092 --topic nys
+### Usage
 
-docker compose exec -it cryptic_kafka kafka-topics --create --topic nys --partitions 1 --replication-factor 1 --bootstrap-server cryptic_kafka:9092
-docker-compose exec cryptic_kafka kafka-console-producer --broker-list localhost:9092 --topic nys
+- **Data Ingestion:** Scheduled tasks automatically retrieve and process data according to the configuration.
+- **Data Monitoring:** Use pgAdmin to monitor the database and ensure data integrity.
 
-docker-compose exec cryptic_kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic nys --from-beginning
+### Future Enhancements
 
+- **Enhanced Data Processing:** Additional data cleaning and transformation pipelines.
+- **Real-time Data Streaming:** Re-enable Kafka for real-time data ingestion and processing.
+- **Expanded Data Sources:** Incorporate additional cryptocurrency and financial data sources.
 
-
-### ToDo:
-fix kafka aggregation -> to timescale db
-fix forex 
-fix rest of technical and misc
-- setting up data checks 

@@ -69,87 +69,81 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$TIMESCALE_DATABAS
     OWNER TO $POSTGRES_USER;
 EOSQL
 
+
+
+
 done
 
 
-# psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$TIMESCALE_DATABASE" <<-EOSQL
 
-#         CREATE TABLE IF NOT EXISTS "general"."feargreed"
-#     (
-#         "Item" character varying COLLATE pg_catalog."default" NOT NULL,
-#         "DateTime" character varying COLLATE pg_catalog."default" NOT NULL,
-#         "Value" double precision NOT NULL,
-#         CONSTRAINT fear_greed_pkey PRIMARY KEY ("Item", "DateTime")
-#     )
+        CREATE TABLE IF NOT EXISTS "public"."strategy_metrics"
+    (
+       test_name character varying COLLATE pg_catalog."default" NOT NULL,
+        "time" timestamp with time zone NOT NULL,
+        close double precision,
+        "position" integer,
+        cash double precision,
+        value double precision,
+        CONSTRAINT strategy_metrics_pkey PRIMARY KEY (test_name, "time")
+    )
 
-#     TABLESPACE pg_default;
+    TABLESPACE pg_default;
 
-#     ALTER TABLE IF EXISTS "general"."feargreed"
-#     OWNER TO $POSTGRES_USER;
-# EOSQL
+    ALTER TABLE IF EXISTS "public"."strategy_metrics"
+    OWNER TO $POSTGRES_USER;
+EOSQL
 
-# psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$TIMESCALE_DATABASE" <<-EOSQL
 
-#         CREATE TABLE IF NOT EXISTS "news"."crypto_events"
-#         (
-#         event_id bigint NOT NULL,
-#         date character varying COLLATE pg_catalog."default",
-#         "time" character varying COLLATE pg_catalog."default",
-#         "Impact" character varying COLLATE pg_catalog."default",
-#         title character varying COLLATE pg_catalog."default",
-#         details character varying COLLATE pg_catalog."default",
-#         actual character varying COLLATE pg_catalog."default",
-#         forecast character varying COLLATE pg_catalog."default",
-#         previous character varying COLLATE pg_catalog."default",
-#         CONSTRAINT crypto_events_pkey PRIMARY KEY (event_id)
-#         )
-#     TABLESPACE pg_default;
+        CREATE TABLE IF NOT EXISTS "public"."strategy_trades"
+    (
+        test_name character varying COLLATE pg_catalog."default" NOT NULL,
+        "time" timestamp with time zone NOT NULL,
+        trade_type text COLLATE pg_catalog."default",
+        price double precision,
+        pnl double precision,
+        pnlcomm double precision,
+        CONSTRAINT strategy_trades_pkey PRIMARY KEY (test_name, "time")
+    )
 
-#     ALTER TABLE IF EXISTS "news"."crypto_events"
-#     OWNER TO $POSTGRES_USER;
-# EOSQL
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS "public"."strategy_trades"
+    OWNER TO $POSTGRES_USER;
+EOSQL
 
 
-# psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$TIMESCALE_DATABASE" <<-EOSQL
 
-#         CREATE TABLE IF NOT EXISTS "news"."cryptofactory_news"
-#         (
-#         datetime character varying COLLATE pg_catalog."default" NOT NULL,
-#         title character varying COLLATE pg_catalog."default",
-#         href character varying COLLATE pg_catalog."default",
-#         CONSTRAINT cryptofactory_news_pkey PRIMARY KEY (datetime)
-#         )
-#     TABLESPACE pg_default;
+        CREATE TABLE IF NOT EXISTS "public"."timeseries_metrics"
+    (
+        id SERIAL PRIMARY KEY,              
+        test_name VARCHAR(255) NOT NULL,    
+        metric_name VARCHAR(255) NOT NULL,  
+        timestamp DATE NOT NULL,            
+        metric_value FLOAT8,                
+        created_at TIMESTAMPTZ DEFAULT NOW()    )
 
-#     ALTER TABLE IF EXISTS "news"."cryptofactory_news_detailed"
-#     OWNER TO $POSTGRES_USER;
-# EOSQL
+    TABLESPACE pg_default;
 
-# psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+    ALTER TABLE IF EXISTS "public"."timeseries_metrics"
+    OWNER TO $POSTGRES_USER;
+EOSQL
 
-#         CREATE TABLE IF NOT EXISTS "news"."cryptofactory_news_detailed"
-#         (
-#         datetime character varying COLLATE pg_catalog."default" NOT NULL,
-#         text text COLLATE pg_catalog."default" NOT NULL,
-#         CONSTRAINT cryptofactory_news_detailed_pkey PRIMARY KEY (datetime)
-#         )
-#     TABLESPACE pg_default;
 
-#     ALTER TABLE IF EXISTS "news"."cryptofactory_news_detailed"
-#     OWNER TO $POSTGRES_USER;
-# EOSQL
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$TIMESCALE_DATABASE" <<-EOSQL
 
-# psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$DATABASE" <<-EOSQL
+        CREATE TABLE IF NOT EXISTS "public"."single_metrics"
+    (
+         id SERIAL PRIMARY KEY,              -- Automatically incrementing ID
+    test_name VARCHAR(255) NOT NULL,    -- Test name (up to 255 characters)
+    metric_name VARCHAR(255) NOT NULL,  -- Metric name (up to 255 characters)
+    metric_value FLOAT8,                -- Metric value as a double precision float
+    created_at TIMESTAMPTZ DEFAULT NOW()    )
 
-#         CREATE TABLE IF NOT EXISTS "general"."money_index"
-#         (
-#         "Item" character varying COLLATE pg_catalog."default" NOT NULL,
-#         "DateTime" character varying COLLATE pg_catalog."default" NOT NULL,
-#         "Value" double precision,
-#         CONSTRAINT money_index_pkey PRIMARY KEY ("Item", "DateTime")
-#         )
-#     TABLESPACE pg_default;
+    TABLESPACE pg_default;
 
-#     ALTER TABLE IF EXISTS "general"."money_index"
-#     OWNER TO $POSTGRES_USER;
-# EOSQL
+    ALTER TABLE IF EXISTS "public"."single_metrics"
+    OWNER TO $POSTGRES_USER;
+EOSQL
